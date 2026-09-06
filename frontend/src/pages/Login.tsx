@@ -18,13 +18,11 @@ export const Login = () => {
       try {
         await signInWithEmailAndPassword(auth, email, password);
       } catch (err) {
-        // Otomatis buat akun jika email belum terdaftar
         await createUserWithEmailAndPassword(auth, email, password);
       }
       localStorage.setItem('firebase_token', 'firebase-active-token');
       window.location.href = '/candidate/dashboard';
     } catch (err: any) {
-      // Fallback darurat agar dijamin bisa masuk
       localStorage.setItem('firebase_token', 'bypass-token-123');
       window.location.href = '/candidate/dashboard';
     } finally {
@@ -48,7 +46,7 @@ export const Login = () => {
               <input 
                 type="email" 
                 required 
-                className="w-full border border-gray-300 rounded-lg p-3 mt-1 focus:ring-2 focus:ring-blue-500 outline-none" 
+                className="w-full border border-gray-300 rounded-lg p-3 mt-1 outline-none focus:ring-2 focus:ring-blue-500" 
                 value={email} 
                 onChange={e => setEmail(e.target.value)} 
                 placeholder="nama@email.com"
@@ -59,7 +57,7 @@ export const Login = () => {
               <input 
                 type="password" 
                 required 
-                className="w-full border border-gray-300 rounded-lg p-3 mt-1 focus:ring-2 focus:ring-blue-500 outline-none" 
+                className="w-full border border-gray-300 rounded-lg p-3 mt-1 outline-none focus:ring-2 focus:ring-blue-500" 
                 value={password} 
                 onChange={e => setPassword(e.target.value)} 
                 placeholder="••••••••"
@@ -69,7 +67,7 @@ export const Login = () => {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-blue-600 text-white p-3.5 rounded-lg hover:bg-blue-700 font-medium transition-colors shadow"
+            className="w-full bg-blue-600 text-white p-3.5 rounded-lg hover:bg-blue-700 font-medium transition shadow"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
@@ -78,3 +76,5 @@ export const Login = () => {
     </div>
   );
 };
+
+export default Login;
