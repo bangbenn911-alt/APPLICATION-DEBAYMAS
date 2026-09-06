@@ -84,3 +84,5 @@ export const CandidateDashboard = () => {
     </div>
   );
 };
+
+export default CandidateDashboard;
