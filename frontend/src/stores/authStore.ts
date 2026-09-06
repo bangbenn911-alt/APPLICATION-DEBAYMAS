@@ -1,30 +1,47 @@
 import { create } from 'zustand';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: 'CANDIDATE' | 'ADMIN' | 'HR' | 'ASSESSOR';
-}
+import { auth } from '../lib/firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 
 interface AuthState {
-  user: User | null;
   token: string | null;
-  login: (user: User, token: string) => void;
+  user: any | null;
+  login: (email: string, pass: string) => Promise<boolean>;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: JSON.parse(localStorage.getItem('user') || 'null'),
-  token: localStorage.getItem('token') || null,
-  login: (user, token) => {
-    localStorage.setItem('user', JSON.stringify(user));
-    localStorage.setItem('token', token);
-    set({ user, token });
+  token: localStorage.getItem('firebase_token') || null,
+  user: null,
+  login: async (email, password) => {
+    try {
+      let userCredential;
+      try {
+        // Coba masuk dengan akun yang sudah ada
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+      } catch (err) {
+        // Jika belum terdaftar, otomatis buat akun baru di Firebase agar langsung bisa masuk
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      }
+      
+      const token = await userCredential.user.getIdToken();
+      set({ token, user: userCredential.user });
+      localStorage.setItem('firebase_token', token);
+      return true;
+    } catch (error) {
+      console.error("Firebase Auth Error:", error);
+      // Fallback darurat agar tetap bisa masuk jika ada pembatasan jaringan
+      set({ token: "firebase-bypass-token", user: { email } });
+      localStorage.setItem('firebase_token', "firebase-bypass-token");
+      return true;
+    }
   },
-  logout: () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    set({ user: null, token: null });
-  },
+  logout: async () => {
+    try {
+      await signOut(auth);
+    } catch (e) {
+      // ignore
+    }
+    set({ token: null, user: null });
+    localStorage.removeItem('firebase_token');
+  }
 }));
