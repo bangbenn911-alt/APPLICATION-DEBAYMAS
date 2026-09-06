@@ -1,31 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { LogOut, PlayCircle, ShieldCheck } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
 export const CandidateDashboard = () => {
-  const { user, token, logout } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-  const [assessment, setAssessment] = useState<any>(null);
 
-  useEffect(() => {
-    axios.get(`${API_URL}/api/assessment/active`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).then(res => setAssessment(res.data)).catch(console.error);
-  }, [token]);
+  // Data Assessment mandiri tanpa perlu server backend Express
+  const [assessment] = useState({
+    id: "demo-assessment-1",
+    title: "Corporate Assessment Center - General & Technical Test",
+    description: "Evaluasi kompetensi umum, spreadsheet, dan akuntansi perusahaan.",
+    timeLimit: 30,
+    sections: [
+      { title: "General & Technical Test" }
+    ]
+  });
 
-  const handleStart = async () => {
-    try {
-      const res = await axios.post(`${API_URL}/api/assessment/start/${assessment.id}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      navigate(`/candidate/assessment/${res.data.id}`);
-    } catch (err) {
-      alert('Error starting assessment');
-    }
+  const handleStart = () => {
+    // Langsung arahkan ke halaman pengerjaan soal dengan ID sesi demo
+    navigate(`/candidate/assessment/demo-session-id`);
   };
 
   return (
@@ -34,7 +29,7 @@ export const CandidateDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-xl font-bold">Candidate Portal</h1>
           <div className="flex items-center gap-4">
-            <span>{user?.name} ({user?.email})</span>
+            <span>{user?.email || "Kandidat"}</span>
             <button onClick={() => { logout(); navigate('/'); }} className="flex items-center gap-2 text-sm hover:text-gray-300">
               <LogOut size={16} /> Logout
             </button>
@@ -43,7 +38,7 @@ export const CandidateDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="card max-w-3xl mx-auto">
+        <div className="card max-w-3xl mx-auto bg-white p-6 rounded-lg shadow">
           <h2 className="text-2xl font-bold mb-4">Available Assessment</h2>
           
           {assessment ? (
@@ -57,13 +52,13 @@ export const CandidateDashboard = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="border p-4 rounded">
+                <div className="border p-4 rounded bg-gray-50">
                   <p className="text-sm text-gray-500">Duration</p>
                   <p className="font-bold text-lg">{assessment.timeLimit} Minutes</p>
                 </div>
-                <div className="border p-4 rounded">
+                <div className="border p-4 rounded bg-gray-50">
                   <p className="text-sm text-gray-500">Sections</p>
-                  <p className="font-bold text-lg">{assessment.sections.length} Sections</p>
+                  <p className="font-bold text-lg">{assessment.sections.length} Section</p>
                 </div>
               </div>
 
@@ -77,7 +72,7 @@ export const CandidateDashboard = () => {
                 </ul>
               </div>
 
-              <button onClick={handleStart} className="w-full btn btn-primary flex justify-center items-center gap-2 text-lg py-3">
+              <button onClick={handleStart} className="w-full btn btn-primary flex justify-center items-center gap-2 text-lg py-3 bg-blue-600 text-white rounded hover:bg-blue-700">
                 <PlayCircle /> Start Assessment Now
               </button>
             </div>
