@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useAuthStore } from '../stores/authStore';
 import { SpreadsheetSimulator } from './SpreadsheetSimulator';
 import { Clock, Save, AlertTriangle } from 'lucide-react';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { db } from "../lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 export const AssessmentRunner = () => {
   const { sessionId } = useParams();
@@ -20,45 +19,83 @@ export const AssessmentRunner = () => {
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
   useEffect(() => {
-    // In a real app, we'd fetch the session details to resume state and get precise expiresAt from server
-    // Mocking load for demo completeness
-    axios.get(`${API_URL}/api/assessment/active`, { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => {
-        setAssessment(res.data);
-        setTimeLeft(res.data.timeLimit * 60);
-      });
-  }, [token]);
+    // Memuat data bawaan assessment tanpa memerlukan server backend Express/Node
+    const defaultAssessment = {
+      title: "Corporate Assessment Center",
+      timeLimit: 30, // durasi dalam menit
+      sections: [
+        {
+          title: "General & Technical Test",
+          questions: [
+            {
+              id: "q1",
+              type: "MULTIPLE_CHOICE",
+              category: "General Knowledge",
+              questionText: "Apa komponen utama dalam penyusunan laporan keuangan tahunan perusahaan?",
+              options: [
+                "Laporan Laba Rugi, Neraca, dan Arus Kas",
+                "Faktur Pajak dan Kuitansi Belanja",
+                "Daftar Hadir Karyawan",
+                "Notulensi Rapat Direksi"
+              ]
+            },
+            {
+              id: "q2",
+              type: "SPREADSHEET",
+              category: "Excel & Spreadsheet",
+              questionText: "Simulasikan perhitungan proyeksi anggaran pada tabel spreadsheet di bawah ini:"
+            },
+            {
+              id: "q3",
+              type: "ACCOUNTING_JOURNAL",
+              category: "Accounting",
+              questionText: "Buatlah jurnal akuntansi untuk transaksi pembelian peralatan secara tunai sebesar Rp 5.000.000:"
+            }
+          ]
+        }
+      ]
+    };
+
+    setAssessment(defaultAssessment);
+    setTimeLeft(defaultAssessment.timeLimit * 60);
+  }, []);
 
   useEffect(() => {
-    if (timeLeft <= 0 && assessment) handleSubmit();
+    if (timeLeft <= 0 && assessment) {
+      handleSubmit();
+    }
     const timer = setInterval(() => setTimeLeft(t => t - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft, assessment]);
 
-  const handleAnswerChange = async (questionId: string, val: any) => {
+  const handleAnswerChange = (questionId: string, val: any) => {
     setAnswers(prev => ({ ...prev, [questionId]: val }));
     setSaving(true);
-    try {
-      await axios.post(`${API_URL}/api/assessment/answer/${sessionId}`, 
-        { questionId, value: val },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    } catch (e) {
-      console.error("Autosave failed");
-    } finally {
+    setTimeout(() => {
       setSaving(false);
-    }
+    }, 300);
   };
 
   const handleSubmit = async () => {
-    if(!window.confirm("Submit assessment?")) return;
+    if (!window.confirm("Apakah Anda yakin ingin menyelesaikan assessment ini?")) return;
+    
+    setSaving(true);
     try {
-      await axios.post(`${API_URL}/api/assessment/submit/${sessionId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
+      // Simpan hasil jawaban kandidat langsung ke koleksi 'assessments' di Firebase Firestore
+      const docRef = await addDoc(collection(db, "assessments"), {
+        sessionId: sessionId || "demo-session",
+        answers: answers,
+        submittedAt: new Date().toISOString(),
+        status: "COMPLETED"
       });
-      navigate('/candidate/dashboard'); // Or Result page
-    } catch(e) {
-      alert("Submit failed");
+
+      alert("Assessment berhasil dikirim! ID Dokumen Firebase: " + docRef.id);
+      navigate('/candidate/dashboard');
+    } catch (e) {
+      console.error("Gagal menyimpan ke Firebase:", e);
+      alert("Pengiriman gagal! Periksa koneksi atau konfigurasi Firebase Anda.");
+    } finally {
+      setSaving(false);
     }
   };
 
