@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CANDIDATE
+  ADMIN
+  HR
+  ASSESSOR
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  SPREADSHEET
+  ACCOUNTING_JOURNAL
+  DRAWING_WARTEGG
+  PERSONALITY_DISC
+}
+
+enum AssessmentStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(CANDIDATE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions  AssessmentSession[]
+  auditLogs AuditLog[]
+}
+
+model Assessment {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  timeLimit   Int      // in minutes
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sections AssessmentSection[]
+  sessions AssessmentSession[]
+}
+
+model AssessmentSection {
+  id           String     @id @default(uuid())
+  assessmentId String
+  title        String
+  category     String     // Numerical, Clerical, Abstract, Verbal, Accounting
+  order        Int
+  weight       Float      @default(1.0)
+  
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  questions    Question[]
+}
+
+model Question {
+  id             String            @id @default(uuid())
+  sectionId      String
+  type           QuestionType
+  category       String
+  difficulty     String            @default("MEDIUM")
+  questionText   String            @db.Text
+  options        Json?             // Array of options for multiple choice
+  answerKey      Json              // Stored as JSON to support complex answers (spreadsheet formula, journal entry)
+  points         Float             @default(5.0)
+  negativePoints Float             @default(0.0)
+  explanation    String?           @db.Text
+  learningNote   String?           @db.Text
+  active         Boolean           @default(true)
+
+  section AssessmentSection @relation(fields: [sectionId], references: [id])
+  answers Answer[]
+}
+
+model AssessmentSession {
+  id           String           @id @default(uuid())
+  userId       String
+  assessmentId String
+  status       AssessmentStatus @default(PENDING)
+  startedAt    DateTime?
+  completedAt  DateTime?
+  expiresAt    DateTime?
+  
+  // Results
+  overallScore Float?
+  sectionScores Json?           // { "Numerical": 80, "Clerical": 90 }
+  personality   Json?           // { "D": 40, "I": 20, "S": 30, "C": 10 }
+  
+  user       User       @relation(fields: [userId], references: [id])
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+  answers    Answer[]
+}
+
+model Answer {
+  id           String   @id @default(uuid())
+  sessionId    String
+  questionId   String
+  value        Json     // User's submitted answer
+  isCorrect    Boolean?
+  scoreEarned  Float?
+  responseTime Int?     // in seconds
+  answeredAt   DateTime @default(now())
+
+  session  AssessmentSession @relation(fields: [sessionId], references: [id])
+  question Question          @relation(fields: [questionId], references: [id])
+
+  @@unique([sessionId, questionId])
+}
+
+model TaxRule {
+  id           String   @id @default(uuid())
+  taxType      String   // PPh21, PPN, dll
+  rate         Float
+  effectiveFrom DateTime
+  effectiveTo  DateTime?
+  description  String?
+  version      Int      @default(1)
+  createdAt    DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
