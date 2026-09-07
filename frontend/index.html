@@ -8,7 +8,6 @@
 </head>
 <body>
 
-  <!-- HEADER AREA -->
   <header class="top-header">
     <div class="header-left">
       <h1>Corporate Assessment Center</h1>
@@ -21,15 +20,11 @@
     </div>
   </header>
 
-  <!-- MAIN CONTENT -->
   <main class="assessment-container">
-    
-    <!-- WARNING BANNER -->
     <div class="warning-banner">
       ⚠️ Tab switching is monitored. Do not leave fullscreen.
     </div>
 
-    <!-- QUESTION 1: MULTIPLE CHOICE -->
     <div class="question-card active-question" id="q-1">
       <div class="question-header">
         <h2>Question 1 of 3</h2>
@@ -44,14 +39,12 @@
       </div>
     </div>
 
-    <!-- QUESTION 2: SPREADSHEET ENGINE -->
     <div class="question-card" id="q-2">
       <div class="question-header">
         <h2>Question 2 of 3</h2>
         <span class="badge">Excel & Spreadsheet</span>
       </div>
       <p>Simulasikan perhitungan proyeksi anggaran pada tabel spreadsheet di bawah ini. Hitung nilai <strong>Laba Bersih</strong> pada sel B4 menggunakan rumus baris fx (Contoh: =B1-B2-B3).</p>
-      
       <div class="spreadsheet-engine">
         <div class="fx-bar">
           <span class="fx-icon">fx</span>
@@ -71,14 +64,12 @@
       </div>
     </div>
 
-    <!-- QUESTION 3: ACCOUNTING ENGINE -->
     <div class="question-card" id="q-3">
       <div class="question-header">
         <h2>Question 3 of 3</h2>
         <span class="badge">Accounting</span>
       </div>
       <p>Buatlah jurnal akuntansi untuk transaksi pembelian peralatan secara tunai sebesar Rp 5.000.000:</p>
-      
       <div class="accounting-engine">
         <table class="journal-table">
           <thead>
@@ -90,7 +81,6 @@
             </tr>
           </thead>
           <tbody id="journalBody">
-            <!-- JS will populate rows -->
           </tbody>
           <tfoot>
             <tr>
@@ -104,15 +94,14 @@
         <button type="button" id="addRowBtn" class="btn-outline">+ Tambah Baris Jurnal</button>
       </div>
     </div>
-
   </main>
 
-  <!-- BOTTOM NAVIGATION -->
   <footer class="bottom-nav">
     <button class="btn-outline" id="prevBtn" disabled>Previous</button>
     <button class="btn-primary" id="nextBtn">Next Question</button>
   </footer>
 
-  <script src="script.js"></script>
+  <!-- Menggunakan type="module" agar bisa import library Firebase -->
+  <script type="module" src="script.js"></script>
 </body>
 </html>
