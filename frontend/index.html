@@ -1,14 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Corporate Assessment Center</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  </head>
-  <body class="bg-surface text-dark font-sans antialiased">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-width=1.0">
+  <title>Corporate Assessment Center</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER AREA -->
+  <header class="top-header">
+    <div class="header-left">
+      <h1>Corporate Assessment Center</h1>
+      <span class="section-title">Section: General & Technical Test</span>
+    </div>
+    <div class="header-right">
+      <span class="save-status">💾 Saved</span>
+      <span class="timer-display" id="timerDisplay">29:41</span>
+      <button class="btn-primary" id="headerFinishBtn">Finish Test</button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="assessment-container">
+    
+    <!-- WARNING BANNER -->
+    <div class="warning-banner">
+      ⚠️ Tab switching is monitored. Do not leave fullscreen.
+    </div>
+
+    <!-- QUESTION 1: MULTIPLE CHOICE -->
+    <div class="question-card active-question" id="q-1">
+      <div class="question-header">
+        <h2>Question 1 of 3</h2>
+        <span class="badge">General & Technical</span>
+      </div>
+      <p>Manakah dari rumus berikut yang paling tepat digunakan untuk mencari nilai rata-rata dari sebuah rentang data di aplikasi Spreadsheet?</p>
+      <div class="options-container">
+        <label class="option-label"><input type="radio" name="q1" value="A"> A. =SUM()</label>
+        <label class="option-label"><input type="radio" name="q1" value="B"> B. =AVERAGE()</label>
+        <label class="option-label"><input type="radio" name="q1" value="C"> C. =COUNT()</label>
+        <label class="option-label"><input type="radio" name="q1" value="D"> D. =MEDIAN()</label>
+      </div>
+    </div>
+
+    <!-- QUESTION 2: SPREADSHEET ENGINE -->
+    <div class="question-card" id="q-2">
+      <div class="question-header">
+        <h2>Question 2 of 3</h2>
+        <span class="badge">Excel & Spreadsheet</span>
+      </div>
+      <p>Simulasikan perhitungan proyeksi anggaran pada tabel spreadsheet di bawah ini. Hitung nilai <strong>Laba Bersih</strong> pada sel B4 menggunakan rumus baris fx (Contoh: =B1-B2-B3).</p>
+      
+      <div class="spreadsheet-engine">
+        <div class="fx-bar">
+          <span class="fx-icon">fx</span>
+          <input type="text" id="fxInput" placeholder="Pilih cell untuk mengetik rumus..." disabled>
+        </div>
+        <table class="sheet-table">
+          <thead>
+            <tr><th></th><th>A (Kategori)</th><th>B (Nilai Rp)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Pendapatan Utama</td><td><input type="text" id="B1" class="cell" value="100000"></td></tr>
+            <tr><td>2</td><td>Beban Pokok</td><td><input type="text" id="B2" class="cell" value="30000"></td></tr>
+            <tr><td>3</td><td>Beban Operasional</td><td><input type="text" id="B3" class="cell" value="15000"></td></tr>
+            <tr><td>4</td><td><strong>Laba Bersih</strong></td><td><input type="text" id="B4" class="cell formula-cell" placeholder="="></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- QUESTION 3: ACCOUNTING ENGINE -->
+    <div class="question-card" id="q-3">
+      <div class="question-header">
+        <h2>Question 3 of 3</h2>
+        <span class="badge">Accounting</span>
+      </div>
+      <p>Buatlah jurnal akuntansi untuk transaksi pembelian peralatan secara tunai sebesar Rp 5.000.000:</p>
+      
+      <div class="accounting-engine">
+        <table class="journal-table">
+          <thead>
+            <tr>
+              <th>Nama Akun</th>
+              <th>Debit (Rp)</th>
+              <th>Kredit (Rp)</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="journalBody">
+            <!-- JS will populate rows -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <th>Total</th>
+              <th id="totalDebit">0</th>
+              <th id="totalKredit">0</th>
+              <th id="balanceStatus" class="status-unbalanced">Not Balanced</th>
+            </tr>
+          </tfoot>
+        </table>
+        <button type="button" id="addRowBtn" class="btn-outline">+ Tambah Baris Jurnal</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM NAVIGATION -->
+  <footer class="bottom-nav">
+    <button class="btn-outline" id="prevBtn" disabled>Previous</button>
+    <button class="btn-primary" id="nextBtn">Next Question</button>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
 </html>
