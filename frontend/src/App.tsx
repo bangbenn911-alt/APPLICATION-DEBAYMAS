@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
-import CandidateDashboard from './pages/CandidateDashboard';
-import AssessmentRunner from './components/AssessmentRunner';
+import { Login } from './pages/Login';
+import { CandidateDashboard } from './pages/CandidateDashboard';
+import { AssessmentRunner } from './components/AssessmentRunner';
 
 function App() {
   return (
